@@ -45,6 +45,8 @@ RUN apt-get update \
          mbstring \
          pcntl \
     && docker-php-ext-enable imagick
+    && docker-php-ext-configure imap --with-imap-ssl --with-kerberos \
+	&& docker-php-ext-install imap \
 
 RUN   \
    rm -f /var/log/apache2/* \
