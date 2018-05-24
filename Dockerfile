@@ -29,6 +29,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/* \
     && pecl install imagick-beta \
     && docker-php-ext-configure gd --with-png-dir=/usr --with-jpeg-dir=/usr \
+    && docker-php-ext-configure imap --with-imap-ssl --with-kerberos \
     && docker-php-ext-install gd \
          mysqli \
          opcache \
@@ -37,6 +38,7 @@ RUN apt-get update \
          pdo_pgsql \
          pgsql \
          ldap \
+	 imap \
          intl \
          mcrypt \
          gmp \
@@ -45,8 +47,6 @@ RUN apt-get update \
          mbstring \
          pcntl \
     && docker-php-ext-enable imagick
-    && docker-php-ext-configure imap --with-imap-ssl --with-kerberos \
-	&& docker-php-ext-install imap \
 
 RUN   \
    rm -f /var/log/apache2/* \
