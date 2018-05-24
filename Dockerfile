@@ -1,14 +1,4 @@
-# Basic apache php 7.2 appserver for Lando
-#
-# docker build -t devwithlando/php:7.2-apache .
-
 FROM php:7.2-apache
-
-COPY apache2.conf /bin/
-COPY init_container.sh /bin/
-COPY hostingstart.html /home/site/wwwroot/hostingstart.html
-
-RUN a2enmod rewrite expires include deflate
 
 # Install dependencies we need
 RUN mkdir -p /usr/share/man/man1 /usr/share/man/man7 \
@@ -79,19 +69,4 @@ RUN mkdir -p /usr/share/man/man1 /usr/share/man/man7 \
   && apt-get -y clean \
   && apt-get -y autoclean \
   && apt-get -y autoremove \
-  
-  COPY sshd_config /etc/ssh/
-
-EXPOSE 2222 8080
-
-ENV APACHE_RUN_USER www-data
-ENV PHP_VERSION 7.0.30
-
-ENV PORT 8080
-ENV WEBSITE_ROLE_INSTANCE_ID localRoleInstance
-ENV WEBSITE_INSTANCE_ID localInstance
-ENV PATH ${PATH}:/home/site/wwwroot
-
-WORKDIR /var/www/html
-
-ENTRYPOINT ["/bin/init_container.sh"]
+  && rm -rf /var/lib/apt/lists/* && rm -rf && rm -rf /var/lib/cache/* && rm -rf /var/lib/log/* && rm -rf /tmp/*
