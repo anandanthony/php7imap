@@ -1,4 +1,4 @@
-FROM php:7.0-cli
+FROM php:7.0.30-apache
 COPY apache2.conf /bin/
 COPY init_container.sh /bin/
 COPY hostingstart.html /home/site/wwwroot/hostingstart.html
