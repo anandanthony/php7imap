@@ -1,11 +1,16 @@
-FROM php:7.0-cli
+FROM php:7.0.30-apache
+MAINTAINER Azure App Services Container Images <appsvc-images@microsoft.com>
+
 COPY apache2.conf /bin/
 COPY init_container.sh /bin/
 COPY hostingstart.html /home/site/wwwroot/hostingstart.html
+
+RUN a2enmod rewrite expires include deflate
+
 # install the PHP extensions we need
-RUN apt-get update -y
-RUN apt-get install -y apache2
-RUN apt-get install -y \
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+         libpng12-dev \
          libjpeg-dev \
          libpq-dev \
          libmcrypt-dev \
@@ -14,17 +19,17 @@ RUN apt-get install -y \
          libicu-dev \
          libgmp-dev \
          libmagickwand-dev \
-         openssh-server vim curl wget tcptraceroute
-RUN chmod 755 /bin/init_container.sh
-RUN echo "root:Docker!" | chpasswd
-RUN echo "cd /home" >> /etc/bash.bashrc
-RUN ln -s /usr/lib/x86_64-linux-gnu/libldap.so /usr/lib/libldap.so
-RUN ln -s /usr/lib/x86_64-linux-gnu/liblber.so /usr/lib/liblber.so
-RUN ln -s /usr/include/x86_64-linux-gnu/gmp.h /usr/include/gmp.h
-RUN rm -rf /var/lib/apt/lists/*
-RUN pecl install imagick-beta
-RUN docker-php-ext-configure gd --with-png-dir=/usr --with-jpeg-dir=/usr
-RUN docker-php-ext-install gd \
+         openssh-server vim curl wget tcptraceroute \
+    && chmod 755 /bin/init_container.sh \
+    && echo "root:Docker!" | chpasswd \
+    && echo "cd /home" >> /etc/bash.bashrc \
+    && ln -s /usr/lib/x86_64-linux-gnu/libldap.so /usr/lib/libldap.so \
+    && ln -s /usr/lib/x86_64-linux-gnu/liblber.so /usr/lib/liblber.so \
+    && ln -s /usr/include/x86_64-linux-gnu/gmp.h /usr/include/gmp.h \
+    && rm -rf /var/lib/apt/lists/* \
+    && pecl install imagick-beta \
+    && docker-php-ext-configure gd --with-png-dir=/usr --with-jpeg-dir=/usr \
+    && docker-php-ext-install gd \
          mysqli \
          opcache \
          pdo \
@@ -38,11 +43,11 @@ RUN docker-php-ext-install gd \
          zip \
          bcmath \
          mbstring \
-         pcntl
-RUN docker-php-ext-enable imagick
-RUN apt-get update
-RUN  apt-get -y install libssl-dev libc-client2007e-dev libkrb5-dev
-RUN docker-php-ext-configure imap --with-imap-ssl --with-kerberos
+         pcntl \
+    && docker-php-ext-enable imagick
+RUN apt-get update	
+RUN  apt-get -y install libssl-dev libc-client2007e-dev libkrb5-dev		
+RUN docker-php-ext-configure imap --with-imap-ssl --with-kerberos		
 RUN docker-php-ext-install imap
 RUN   \
    rm -f /var/log/apache2/* \
@@ -51,7 +56,7 @@ RUN   \
    && rmdir /var/log/apache2 \
    && chmod 777 /var/log \
    && chmod 777 /var/run \
-   && chmod 777 /var/lock \	
+   && chmod 777 /var/lock \
    && chmod 777 /bin/init_container.sh \
    && cp /bin/apache2.conf /etc/apache2/apache2.conf \
    && rm -rf /var/www/html \
@@ -59,6 +64,8 @@ RUN   \
    && mkdir -p /home/LogFiles \
    && ln -s /home/site/wwwroot /var/www/html \
    && ln -s /home/LogFiles /var/log/apache2 
+
+
 RUN { \
                 echo 'opcache.memory_consumption=128'; \
                 echo 'opcache.interned_strings_buffer=8'; \
@@ -67,6 +74,7 @@ RUN { \
                 echo 'opcache.fast_shutdown=1'; \
                 echo 'opcache.enable_cli=1'; \
     } > /usr/local/etc/php/conf.d/opcache-recommended.ini
+
 RUN { \
                 echo 'error_log=/var/log/apache2/php-error.log'; \
                 echo 'display_errors=Off'; \
