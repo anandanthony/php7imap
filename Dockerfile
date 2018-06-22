@@ -2,6 +2,8 @@ FROM php:7.0.30-apache
 COPY apache2.conf /bin/
 COPY init_container.sh /bin/
 COPY hostingstart.html /home/site/wwwroot/hostingstart.html
+# adding Rewrite engine
+RUN a2enmod rewrite
 # install the PHP extensions we need
 RUN apt-get update -y
 RUN apt-get install -y apache2
